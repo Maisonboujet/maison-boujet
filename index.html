@@ -238,17 +238,45 @@ footer small{font-size:12px;color:var(--steel-dim);letter-spacing:.06em}
 #mv-seek::-moz-range-track{height:1px;background:var(--line)}
 #mv-seek::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--white);border:0;margin-top:-5px}
 #mv-seek::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--white);border:0}
+.mv-pin{display:none}
 .mv-help{font-stretch:118%;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--steel-dim);white-space:nowrap}
 @media (max-width:900px){
-  .mv{grid-template-columns:1fr;gap:24px}
-  .mv-main{order:-1}
-  .mv-stage{height:min(126vw,78svh);min-height:440px}
-  .mv-cap{min-height:270px}
-  .mv-t{font-size:34px}
-  .mv-spec{grid-template-columns:1fr 1fr 1fr;max-width:none}
-  .mv-spec dd{font-size:18px}
+  /* Téléphone / tablette : animation, lecteur, texte et boutons tiennent sur un seul écran et restent épinglés sous l'en-tête
+     pendant un court défilement (.mv-pin), pour lire le texte en regardant l'animation. */
+  .mv{grid-template-columns:1fr;gap:12px;position:sticky;top:calc(68px + env(safe-area-inset-top,0px));--mvrest:418px}
+  .mv-main{order:-1;gap:6px}
+  .mv-stage{height:clamp(220px,calc(100vh - var(--mvrest)),460px);height:clamp(220px,calc(100svh - var(--mvrest)),460px)}
+  .mv-pin{display:block;height:36vh;height:36svh}
+  .mv-side{gap:12px}
+  .mv-cap{min-height:234px;gap:10px}
+  .mv-t{font-size:27px;line-height:1.1}
+  .mv-p{max-width:none;font-size:15px;line-height:1.5}
+  .mv-spec{grid-template-columns:1fr 1fr 1fr;max-width:none;gap:0 14px;margin-top:2px}
+  .mv-spec div{padding:7px 0}
+  .mv-spec dt{font-size:9px;letter-spacing:.2em}
+  .mv-spec dd{font-size:16px}
+  .mv-ctl{gap:8px 10px}
+  .mv-grp .eyebrow{display:none}
+  .mv-btn{padding:8px 14px 8px 9px;gap:9px;font-size:11px;letter-spacing:.16em}
+  .mv-btn i{width:18px;height:18px}
   .mv-help{display:none}
   .mv-ln{font-size:11px;letter-spacing:.02em;font-stretch:100%}
+}
+@media (max-width:900px) and (max-height:700px){
+  .mv{--mvrest:380px}
+  .mv-stage{height:clamp(200px,calc(100vh - var(--mvrest)),460px);height:clamp(200px,calc(100svh - var(--mvrest)),460px)}
+  .mv-cap{min-height:196px;gap:8px}
+  .mv-t{font-size:24px}
+  .mv-p{font-size:14px;line-height:1.45}
+  .mv-spec div{padding:5px 0}
+  .mv-spec dd{font-size:15px}
+}
+@media (max-width:900px) and (max-height:600px){
+  /* très petits écrans : on garde le titre et la phrase, la grille de chiffres (déjà dans la fiche technique) est masquée */
+  .mv{--mvrest:300px}
+  .mv-cap{min-height:118px;gap:6px}
+  .mv-t{font-size:22px}
+  .mv-spec{display:none}
 }
 </style>
 </head>
@@ -403,6 +431,7 @@ footer small{font-size:12px;color:var(--steel-dim);letter-spacing:.06em}
           </div>
         </div>
       </div>
+      <div class="mv-pin" aria-hidden="true"></div>
     </div>
   </section>
 
@@ -956,7 +985,7 @@ window.LOGOS={"emb": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjAAAAIACAYA
   (function(){var b=new T.Box3();Watch.root.updateMatrixWorld(true);Watch.parts.forEach(function(p){b.setFromObject(p.obj);p.lo=b.min.y;p.hi=b.max.y})})();
 
   /* ---------- chronologie (secondes) ---------- */
-  var tD0=2.6,DUR=1.9,tD1,tR0,tR1,TT,tN0,tN1,tN2,tN3;
+  var tD0=3.6,DUR=1.9,tD1,tR0,tR1,TT,tN0,tN1,tN2,tN3;
   /* délai de départ de chaque ensemble au démontage : du plus extérieur vers le centre */
   var DEL={second:0,minute:.5,hour:1.0,dial:1.7,ring:2.7,rotor:2.7,motion:3.2,auto:3.2,plate:3.7,bridges:3.7,stem:3.7,balance:4.2,escape:4.7,train:4.7};
   var maxD=0;for(var id in DEL)maxD=Math.max(maxD,DEL[id]);
@@ -971,22 +1000,20 @@ window.LOGOS={"emb": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjAAAAIACAYA
   }
 
   var INTRO={id:0,k:'MB01 · Assemblée en France',t:'Cadran et mouvement.',
-     p:'Un cadran, trois aiguilles et un calibre automatique japonais NH38A. L’heure affichée est la vôtre.'};
+     p:'Un cadran, trois aiguilles et un calibre automatique japonais NH38A.'};
   var CAPS=[
     Object.assign({a:0},INTRO),
     {a:tD0,id:1,k:'Démontage',t:'Les aiguilles, puis le cadran.',
-     p:'Trotteuse, minutes, heures : les aiguilles se retirent de la plus fine à la plus large. Le cadran suit, avec ses index appliqués.'},
-    {a:tD0+2.8,id:2,k:'Démontage',t:'On ouvre le calibre.',
-     p:'Du dessus vers le dos : anneau de cerclage, minuterie, platine, rouages, échappement, balancier, ponts, remontage automatique, rotor.'},
+     p:'Elles se retirent de la plus fine à la plus large. Le cadran suit.'},
+    {a:tD0+3.4,id:2,k:'Démontage',t:'On ouvre le calibre.',
+     p:'Du dessus vers le dos : platine, rouages, balancier, ponts, rotor.'},
     {a:tD1,id:3,k:'Vue éclatée',t:'Quatorze ensembles.',
-     p:'Un calibre japonais NH38A, qui bat à 21 600 alternances par heure et se remonte tout seul au poignet.',
+     p:'Un calibre japonais NH38A, qui se remonte tout seul au poignet.',
      spec:[['Diamètre','27,4 mm'],['Hauteur','5,32 mm'],['Rubis','24'],['Fréquence','21 600 alt/h'],['Réserve','≈ 41 h'],['Date','Aucune']]},
     {a:tR0,id:4,k:'Remontage',t:'Tout se remet en place.',
      p:'On remonte dans l’ordre inverse : le rotor et les ponts, la platine, puis le cadran et les aiguilles.'},
-    Object.assign({a:tR1},INTRO),
     {a:tN0,id:5,k:'Super-LumiNova C3 · vert',t:'La nuit, elle s’allume.',
-     p:'Index et aiguilles portent un lume C3 : il se charge à la lumière du jour et brille en vert dans l’obscurité.'},
-    Object.assign({a:tN3},INTRO)
+     p:'Index et aiguilles portent un lume C3 : il se charge à la lumière du jour et brille en vert dans l’obscurité.'}
   ];
   var capK=$('#mv-capk'),capT=$('#mv-capt'),capP=$('#mv-capp'),capS=$('#mv-caps'),curCap=-1;
   function caption(t){
